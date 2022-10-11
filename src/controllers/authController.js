@@ -17,8 +17,13 @@ async function signUp(req, res) {
 }
 
 async function signIn(req, res) {
-	const user = req.body;
+	const token = uuid();
 	try {
+		connection.query(
+			`INSERT INTO sessions (token, "userId") VALUES ($1, $2);`,
+			[token, res.locals.userId],
+		);
+		res.status(200).send({ token: token });
 	} catch (err) {
 		console.log(err);
 		res.sendStatus(500);

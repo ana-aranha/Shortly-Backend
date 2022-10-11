@@ -1,4 +1,4 @@
-import { signUpSchema } from "../schemas/authSchemas.js";
+import { signUpSchema, signInSchema } from "../schemas/authSchemas.js";
 import bcrypt from "bcrypt";
 
 async function signUpMiddleware(req, res, next) {
@@ -11,22 +11,52 @@ async function signUpMiddleware(req, res, next) {
 			return res.status(422).send(errors);
 		}
 
-		//validar email, retornar 409 caso já esteja cadastrado
-		const invalidEmail = await connection.query(
+		const isInvalidEmail = await connection.query(
 			"SELECT * FROM users WHERE email ILIKE $1;",
 			[newUser.email],
 		);
 
-		if (invalidEmail.rows[0]) {
+		if (isInvalidEmail.rows[0]) {
 			return res.sendStatus(409);
 		}
 		const hashPassword = bcrypt.hashSync(newUser.password, 12);
 		res.locals.hashPassword = hashPassword;
 		next();
 	} catch (error) {
-		console.log(err);
+		console.log(error);
 		res.sendStatus(500);
 	}
 }
 
-export { signUpMiddleware };
+async function signInMiddleware(req, res, next) {
+	const user = req.body;
+	const validation = signInSchema.validate(user);
+
+	try {
+		if (validation.error) {
+			const errors = validation.error.details.map((el) => el.message);
+			return res.status(422).send(errors);
+		}
+
+		const existentUser = await connection.query(
+			"SELECT * FROM users WHERE email ILIKE $1;",
+			[user.email],
+		);
+
+		const isValidPassword = bcrypt.compare(
+			user.password,
+			existentUser.password,
+		);
+
+		if (!isValidPassword || !existentUser.rows[0]) {
+			return res.sendStatus(401);
+		}
+		res.locals.userId = existentUser.id;
+		next();
+	} catch (error) {
+		console.log(error);
+		res.sendStatus(500);
+	}
+}
+
+export { signUpMiddleware, signInMiddleware };
