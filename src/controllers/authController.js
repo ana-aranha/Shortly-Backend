@@ -18,10 +18,11 @@ async function signUp(req, res) {
 
 async function signIn(req, res) {
 	const token = uuid();
+	const userId = res.locals.userId;
 	try {
 		connection.query(
 			`INSERT INTO sessions (token, "userId") VALUES ($1, $2);`,
-			[token, res.locals.userId],
+			[token, userId],
 		);
 		res.status(200).send({ token: token });
 	} catch (err) {

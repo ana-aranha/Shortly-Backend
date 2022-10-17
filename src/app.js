@@ -2,7 +2,6 @@ import express from "express";
 import cors from "cors";
 import authRouters from "./routers/authRouter.js";
 import urlsRouters from "./routers/urlsRouter.js";
-import urlUserRouter from "./routers/userUrlRouter.js";
 import rankingRouter from "./routers/rankingRouter.js";
 
 const app = express();
@@ -15,7 +14,6 @@ app.get("/status", (req, res) => {
 
 app.use(authRouters);
 app.use(urlsRouters);
-app.use(urlUserRouter);
 app.use(rankingRouter);
 
 app.listen(process.env.PORT, () => {

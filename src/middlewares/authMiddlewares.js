@@ -1,4 +1,5 @@
 import { signUpSchema, signInSchema } from "../schemas/authSchemas.js";
+import connection from "../database/database.js";
 import bcrypt from "bcrypt";
 
 async function signUpMiddleware(req, res, next) {
@@ -43,15 +44,20 @@ async function signInMiddleware(req, res, next) {
 			[user.email],
 		);
 
-		const isValidPassword = bcrypt.compare(
-			user.password,
-			existentUser.password,
-		);
-
-		if (!isValidPassword || !existentUser.rows[0]) {
+		if (!existentUser.rows[0]) {
 			return res.sendStatus(401);
 		}
-		res.locals.userId = existentUser.id;
+
+		const isValidPassword = await bcrypt.compare(
+			user.password,
+			existentUser.rows[0].password,
+		);
+
+		if (!isValidPassword) {
+			return res.sendStatus(401);
+		}
+
+		res.locals.userId = existentUser.rows[0].id;
 		next();
 	} catch (error) {
 		console.log(error);
