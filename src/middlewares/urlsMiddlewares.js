@@ -1,4 +1,5 @@
 import connection from "../database/database.js";
+import { urlSchema } from "../schemas/urlSchemas.js";
 
 async function getShortedIdMiddleware(req, res, next) {
 	const shortUrl = req.params.shortUrl;
@@ -40,4 +41,16 @@ async function deleteMiddleware(req, res, next) {
 	next();
 }
 
-export { getShortedIdMiddleware, deleteMiddleware };
+async function createShortUrlMiddleware(req, res, next) {
+	const url = req.body;
+	const validation = urlSchema.validate(url);
+
+	if (validation.error) {
+		const errors = validation.error.details.map((el) => el.message);
+		return res.status(422).send(errors);
+	}
+
+	next();
+}
+
+export { getShortedIdMiddleware, deleteMiddleware, createShortUrlMiddleware };

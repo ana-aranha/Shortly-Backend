@@ -52,4 +52,21 @@ async function getUserUrls(req, res) {
 	res.status(200).send(userData);
 }
 
-export { getUrl, redirectUrl, deleteUrl, getUserUrls };
+function createShortUrl(req, res) {
+	const userId = res.locals.userId;
+	const url = req.body.url;
+	const shortUrl = nanoid(8);
+
+	try {
+		connection.query(
+			'INSERT INTO urls (url,"shortUrl", "userId") VALUES($1,$2,$3);',
+			[url, shortUrl, userId],
+		);
+		res.status(201).send({ shortUrl: shortUrl });
+	} catch (err) {
+		console.log(err);
+		res.sendStatus(500);
+	}
+}
+
+export { getUrl, redirectUrl, deleteUrl, getUserUrls, createShortUrl };
