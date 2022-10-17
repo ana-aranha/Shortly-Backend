@@ -8,6 +8,7 @@ import {
 	getUrl,
 	redirectUrl,
 	deleteUrl,
+	getUserUrls,
 } from "../controllers/urlsController.js";
 
 const router = express.Router();
@@ -16,6 +17,6 @@ router.post("/urls/shorten");
 router.get("/urls/:id", getUrl);
 router.get("/urls/open/:shortUrl", getShortedIdMiddleware, redirectUrl);
 router.delete("/urls/:id", tokenVerification, deleteMiddleware, deleteUrl);
-router.get("/users/me");
+router.get("/users/me", tokenVerification, getUserUrls);
 
 export default router;
