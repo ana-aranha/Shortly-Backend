@@ -18,4 +18,10 @@ async function getUrl(req, res) {
 	}
 }
 
-export { getUrl };
+function redirectUrl(req, res) {
+	const url = res.locals.urlData;
+	connection.query('INSERT INTO visits ("urlId") VALUES($1);', [url.id]);
+	res.redirect(url.url);
+}
+
+export { getUrl, redirectUrl };
