@@ -24,4 +24,10 @@ function redirectUrl(req, res) {
 	res.redirect(url.url);
 }
 
-export { getUrl, redirectUrl };
+function deleteUrl(req, res) {
+	const urlId = req.params.id;
+	connection.query('UPDATE urls SET "deletedAt"=NOW() WHERE id = $1;', [urlId]);
+	res.sendStatus(204);
+}
+
+export { getUrl, redirectUrl, deleteUrl };
